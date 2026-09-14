@@ -1,0 +1,1 @@
+protected $fillable = ['category_id', 'name', 'price', 'description'];
