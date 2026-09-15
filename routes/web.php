@@ -22,5 +22,5 @@ Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show'
 Route::get('/order_items', [OrderItemController::class, 'index'])->name('order_items.index');
 Route::get('/order_items/{id}', [OrderItemController::class, 'show'])->name('order_items.show');
 
-
+Route::resource('products', ProductController::class);
 

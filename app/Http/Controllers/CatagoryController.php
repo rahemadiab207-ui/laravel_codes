@@ -7,68 +7,39 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $categories=Category::all();
-        
-        return view('categories.index',compact('categories'));
+        $categories = Category::all();
+        return view('categories.index', compact('categories'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-       $categories=Category::all();
-        return view('categories.create',compact('categories'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        Category::create($request->all());
+        return redirect()->route('categories.index')->with('success', 'تم إضافة القسم بنجاح');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function update(Request $request, $id)
     {
-        // findOrFail ===> exit==> data || not exist : 404
-        $category=Category::findOrFail($id);
-        // var_dump($category);
-                return view('categories.show',compact('category'));
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
 
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Category $category)
-    {
+        $category = Category::findOrFail($id);
         $category->update($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+
+        return redirect()->route('categories.index')->with('success', 'تم تعديل القسم بنجاح');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        Category::findOrFail($id)->delete();
+        return redirect()->route('categories.index')->with('success', 'تم حذف القسم بنجاح');
     }
 }

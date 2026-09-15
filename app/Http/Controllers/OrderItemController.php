@@ -2,72 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order_items;
+use App\Models\Order;
+use App\Models\User;
+use App\Models\Product;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 
-class OrderItemController extends Controller
+class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $orderItems = Order_items::with(['order', 'product'])->get();
-        return view('orders.index', compact('orderItems'));
+        $orders = Order::with(['user', 'orderItems.product'])->get();
+        $users = User::all();
+        $products = Product::all();
+        return view('orders.index', compact('orders', 'users', 'products'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-       $orderItems=Order_items::all();
-        return view('orders.create',compact('orderItems'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $order = Order::create(['user_id' => $request->user_id]);
+        $product = Product::findOrFail($request->product_id);
+
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => $request->quantity,
+            'price' => $product->price,
+        ]);
+
+        return redirect()->route('orders.index')->with('success', 'تم إنشاء الطلب بنجاح');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function update(Request $request, $id)
     {
-        // findOrFail ===> exit==> data || not exist : 404
-        $order=Order_items::findOrFail($id);
-        // var_dump($order);
-                return view('orders.show',compact('order'));
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
 
+        $order = Order::findOrFail($id);
+        $order->update(['user_id' => $request->user_id]);
 
+        return redirect()->route('orders.index')->with('success', 'تم تعديل الطلب بنجاح');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order_items $order)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order_items $order)
-    {
-        $order->update($request->all());
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order_items $order)
-    {
-        //
+        Order::findOrFail($id)->delete();
+        return redirect()->route('orders.index')->with('success', 'تم حذف الطلب بنجاح');
     }
 }
