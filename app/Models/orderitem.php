@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -7,10 +9,8 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    // اسم الجدول في قاعدة البيانات
     protected $table = 'order_items';
 
-    // الحقول المسموح بإضافة البيانات وإدخالها فيها
     protected $fillable = [
         'order_id',
         'product_id',
@@ -18,18 +18,15 @@ class OrderItem extends Model
         'price',
     ];
 
-    
-     
-    public function user()
+    // عنصر الطلب ينتمي إلى طلب واحد
+    public function order()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Order::class);
     }
 
-    /**
-     * علاقة الطلب بعناصر الطلب (الطلب يحتوي على عدة عناصر OrderItems)
-     */
-    public function items()
+    // عنصر الطلب ينتمي إلى منتج واحد
+    public function product()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsTo(Product::class);
     }
 }

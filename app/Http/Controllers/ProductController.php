@@ -12,7 +12,7 @@ class ProductController extends Controller
     {
         $products = Product::with('category')->get();
         $categories = Category::all();
-        return view('product.index', compact('products', 'categories'));
+        return response()->json(['products' => $products, 'categories' => $categories]);
     }
 
     public function store(Request $request)
